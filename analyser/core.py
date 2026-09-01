@@ -1,9 +1,9 @@
 """Expense reporting."""
  
 TOTALS = {}
- 
- 
-def generate_report(rows, category=None, include_tax=True):
+
+
+def _parse_and_filter(rows, category):
     parsed = []
     for r in rows:
         if len(r) != 3:
@@ -15,14 +15,20 @@ def generate_report(rows, category=None, include_tax=True):
         if amount < 0:
             continue
         parsed.append({"name": r[0], "amount": amount, "category": r[2]})
- 
+
     if category is not None:
         kept = []
         for p in parsed:
             if p["category"] == category:
                 kept.append(p)
         parsed = kept
- 
+
+    return parsed
+
+
+def generate_report(rows, category=None, include_tax=True):
+    parsed = _parse_and_filter(rows, category)
+
     total = 0.0
     for p in parsed:
         if include_tax:
