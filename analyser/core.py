@@ -26,15 +26,19 @@ def _parse_and_filter(rows, category):
     return parsed
 
 
-def generate_report(rows, category=None, include_tax=True):
-    parsed = _parse_and_filter(rows, category)
-
+def _total(parsed, include_tax):
     total = 0.0
     for p in parsed:
         if include_tax:
             total = total + p["amount"] * 1.2
         else:
             total = total + p["amount"]
+    return total
+
+
+def generate_report(rows, category=None, include_tax=True):
+    parsed = _parse_and_filter(rows, category)
+    total = _total(parsed, include_tax)
     TOTALS[category or "all"] = total
  
     lines = ["EXPENSE REPORT", "--------------"]
@@ -49,12 +53,5 @@ def generate_report(rows, category=None, include_tax=True):
  
 def generate_summary(rows, category=None, include_tax=True):
     parsed = _parse_and_filter(rows, category)
-
-    total = 0.0
-    for p in parsed:
-        if include_tax:
-            total = total + p["amount"] * 1.2
-        else:
-            total = total + p["amount"]
- 
+    total = _total(parsed, include_tax)
     return str(len(parsed)) + " items, total " + str(round(total, 2))
