@@ -1,6 +1,6 @@
 import unittest
  
-from analyser.core import generate_report, generate_summary
+from analyser.core import TOTALS, generate_report, generate_summary
  
 ROWS = [
     ["Train ticket", "40.00", "travel"],
@@ -42,7 +42,22 @@ class TestReport(unittest.TestCase):
             generate_summary(ROWS, category="equipment", include_tax=False),
             "1 items, total 25.5",
         )
- 
- 
+
+    def test_report_records_total_in_totals_dict(self):
+        TOTALS.clear()
+        generate_report(ROWS, include_tax=False)
+        self.assertEqual(TOTALS, {"all": 68.7})
+        generate_report(ROWS, category="travel", include_tax=False)
+        self.assertEqual(TOTALS, {"all": 68.7, "travel": 43.2})
+
+    def test_report_and_summary_for_nonmatching_category(self):
+        output = generate_report(ROWS, category="nonexistent", include_tax=False)
+        self.assertEqual(output, "EXPENSE REPORT\n--------------\nTOTAL: 0.0")
+        self.assertEqual(
+            generate_summary(ROWS, category="nonexistent", include_tax=False),
+            "0 items, total 0.0",
+        )
+
+
 if __name__ == "__main__":
     unittest.main()
